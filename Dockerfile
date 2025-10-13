@@ -17,8 +17,12 @@ ENV REDIS_TOKEN=placeholder
 
 RUN yarn install
 RUN yarn workspaces focus twenty-server
-RUN yarn nx build twenty-server
 
-# ---------- runtime ----------
+# 👇 Install nx CLI globally so it’s available in PATH
+RUN yarn global add nx
+
+# 👇 Or explicitly run Nx from node_modules
+RUN npx nx build twenty-server
+
 EXPOSE 3000
-CMD ["yarn", "nx", "start", "twenty-server"]
+CMD ["npx", "nx", "start", "twenty-server"]
