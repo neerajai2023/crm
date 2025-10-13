@@ -1,13 +1,12 @@
-FROM node:20-alpine
-
-# Add build dependencies
-RUN apk add --no-cache python3 make g++
+FROM node:20-bullseye
 
 WORKDIR /app
 COPY . .
 
+# install build essentials
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 RUN corepack enable
-# 🔽 remove the --immutable flag
 RUN yarn install
 RUN yarn workspaces focus twenty-server
 RUN yarn nx build twenty-server
