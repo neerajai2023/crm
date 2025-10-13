@@ -8,18 +8,16 @@ COPY . .
 
 # ---------- yarn / corepack ----------
 RUN corepack enable
-
-# optional: make sure Corepack uses Yarn 4 explicitly
 RUN corepack prepare yarn@4.9.2 --activate
 
 # ---------- install & build ----------
-# Add placeholder envs so build scripts that expect them won't fail
+# Add placeholders so build scripts that expect env vars won't fail
 ENV DATABASE_URL=placeholder
 ENV REDIS_URL=placeholder
 ENV REDIS_TOKEN=placeholder
 
-# Perform the install with detailed logs
-RUN yarn install --check-cache --verbose || yarn install --verbose
+# Yarn 4 valid install command (no --verbose / no --immutable)
+RUN yarn install
 RUN yarn workspaces focus twenty-server
 RUN yarn nx build twenty-server
 
