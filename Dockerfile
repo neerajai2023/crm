@@ -27,13 +27,12 @@ RUN npm i -g nx@21.3.11
 # Build backend
 RUN nx build twenty-server
 
-# Run the compiled server directly (no Nx daemon at runtime)
-WORKDIR /app/packages/twenty-server
+# ---- runtime ----
+# tiny launcher that finds the built main.js wherever Nx put it
+RUN printf '#!/bin/sh\nset -e\nexport HOST=${HOST:-0.0.0.0}\nexport PORT=${PORT:-3000}\n# try common Nx output locations\nif [ -f /app/packages/twenty-server/dist/main.js ]; then\n  exec node /app/packages/twenty-server/dist/main.js\nelif [ -f /app/dist/packages/twenty-server/main.js ]; then\n  exec node /app/dist/packages/twenty-server/main.js\nelif [ -f /app/dist/apps/twenty-server/main.js ]; then\n  exec node /app/dist/apps/twenty-server/main.js\nelse\n  echo \"Could not find built server entry (main.js). Searching...\" >&2\n  find /app -maxdepth 4 -type f -name main.js || true\n  exit 1\nfi\n' > /app/start.sh && chmod +x /app/start.sh
 
-# Ensure the app binds to the external interface and the Koyeb port
+EXPOSE 3000
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NODE_ENV=production
-
-# Start the NestJS server from the build output
-CMD ["node", "dist/main.js"]
+CMD ["/app/start.sh"]
