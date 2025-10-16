@@ -27,6 +27,13 @@ RUN npm i -g nx@21.3.11
 # Build backend
 RUN nx build twenty-server
 
-# ---- runtime ----
-EXPOSE 3000
-CMD ["nx","start","twenty-server"]
+# Run the compiled server directly (no Nx daemon at runtime)
+WORKDIR /app/packages/twenty-server
+
+# Ensure the app binds to the external interface and the Koyeb port
+ENV HOST=0.0.0.0
+ENV PORT=3000
+ENV NODE_ENV=production
+
+# Start the NestJS server from the build output
+CMD ["node", "dist/main.js"]
