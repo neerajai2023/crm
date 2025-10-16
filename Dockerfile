@@ -27,27 +27,13 @@ RUN npm i -g nx@21.3.11
 # Build backend
 RUN nx build twenty-server
 
-# ---- resolve build output at build-time and symlink it ----
-RUN set -e; \
-  if [ -f /app/packages/twenty-server/dist/main.js ]; then \
-    ln -sf /app/packages/twenty-server/dist/main.js /app/run.js; \
-  elif [ -f /app/packages/twenty-server/dist/src/main.js ]; then \
-    ln -sf /app/packages/twenty-server/dist/src/main.js /app/run.js; \
-  elif [ -f /app/dist/packages/twenty-server/main.js ]; then \
-    ln -sf /app/dist/packages/twenty-server/main.js /app/run.js; \
-  elif [ -f /app/dist/apps/twenty-server/main.js ]; then \
-    ln -sf /app/dist/apps/twenty-server/main.js /app/run.js; \
-  else \
-    echo "Could not find built server entry (main.js). Listing candidates:" >&2; \
-    find /app -maxdepth 6 -type f -name main.js >&2; \
-    exit 1; \
-  fi
-
+# ---- runtime ----
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NODE_ENV=production
 
 EXPOSE 3000
-CMD ["node","/app/run.js"]
+CMD ["node","/app/packages/twenty-server/dist/src/main.js"]
+
 
 
