@@ -10,10 +10,11 @@ COPY . .
 RUN corepack enable
 RUN corepack prepare yarn@4.9.2 --activate
 
+# Use classic node_modules linker to avoid PnP friction in CI
+RUN printf "nodeLinker: node-modules\n" > .yarnrc.yml
+
 # ---------- install & build ----------
-# Yarn 4 now uses rc files rather than the "config set" CLI for global flags.
-# So we add the setting via environment variable instead:
-ENV YARN_ENABLE_STRICT_PEER_DEPENDENCIES=false
+# placeholders so build scripts that expect them won't fail
 
 ENV DATABASE_URL=postgresql://postgres:Sara@3019@db.hhnvcplahhfvwjvegrfw.supabase.co:5432/postgres
 ENV REDIS_URL=https://calm-stallion-14386.upstash.io
@@ -22,6 +23,7 @@ ENV REDIS_TOKEN=ATgyAAIncDIwMjIzMjA5NmVlYmE0ZGVkOGM1NjFlYWUxYWI4NDk0MXAyMTQzODY
 RUN yarn install
 RUN yarn workspaces focus twenty-server
 
+# ensure nx is available on PATH
 RUN yarn global add nx
 RUN npx nx build twenty-server
 
