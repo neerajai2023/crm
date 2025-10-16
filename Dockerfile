@@ -27,12 +27,25 @@ RUN npm i -g nx@21.3.11
 # Build backend
 RUN nx build twenty-server
 
-# ---- runtime ----
-# tiny launcher that finds the built main.js wherever Nx put it
-RUN printf '#!/bin/sh\nset -e\nexport HOST=${HOST:-0.0.0.0}\nexport PORT=${PORT:-3000}\n# try common Nx output locations\nif [ -f /app/packages/twenty-server/dist/main.js ]; then\n  exec node /app/packages/twenty-server/dist/main.js\nelif [ -f /app/dist/packages/twenty-server/main.js ]; then\n  exec node /app/dist/packages/twenty-server/main.js\nelif [ -f /app/dist/apps/twenty-server/main.js ]; then\n  exec node /app/dist/apps/twenty-server/main.js\nelse\n  echo \"Could not find built server entry (main.js). Searching...\" >&2\n  find /app -maxdepth 4 -type f -name main.js || true\n  exit 1\nfi\n' > /app/start.sh && chmod +x /app/start.sh
+# ---- resolve build output at build-time and symlink it ----
+RUN set -e; \
+  if [ -f /app/packages/twenty-server/dist/main.js ]; then \
+    ln -sf /app/packages/twenty-server/dist/main.js /app/run.js; \
+  elif [ -f /app/dist/packages/twenty-server/main.js ]; then \
+    ln -sf /app/dist/packages/twenty-server/main.js /app/run.js; \
+  elif [ -f /app/dist/apps/twenty-server/main.js ]; then \
+    ln -sf /app/dist/apps/twenty-server/main.js /app/run.js; \
+  else \
+    echo "Could not find built server entry (main.js). Listing candidates:" >&2; \
+    find /app -maxdepth 5 -type f -name main.js >&2; \
+    exit 1; \
+  fi
 
-EXPOSE 3000
+# ---- runtime ----
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NODE_ENV=production
-CMD ["/app/start.sh"]
+
+EXPOSE 3000
+CMD ["node","/app/run.js"]
+
