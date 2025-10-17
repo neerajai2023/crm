@@ -33,7 +33,6 @@ ENV PORT=3000
 ENV NODE_ENV=production
 
 EXPOSE 3000
-CMD ["bash","-lc","corepack enable && yarn && npx nx database:reset twenty-server && npx nx start twenty-server"]
-
+CMD ["node","/app/packages/twenty-server/dist/src/main.js"]
 
 
