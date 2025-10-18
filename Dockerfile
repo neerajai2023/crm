@@ -36,4 +36,3 @@ EXPOSE 3000
 CMD ["node","/app/packages/twenty-server/dist/src/main.js"]
 
 
-

@@ -1,0 +1,6 @@
+{
+  "outputDirectory": "packages/twenty-front/build",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
