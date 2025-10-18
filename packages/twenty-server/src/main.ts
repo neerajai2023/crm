@@ -23,7 +23,18 @@ import { generateFrontConfig } from './utils/generate-front-config';
 
 const bootstrap = async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: true,
+    cors: {
+      origin: [
+        process.env.FRONTEND_URL,
+        process.env.FRONT_BASE_URL,
+        process.env.SERVER_URL,
+        'http://localhost:3000',
+        'http://localhost:3001',
+      ].filter(Boolean),
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
+    },
     bufferLogs: process.env.LOGGER_IS_BUFFER_ENABLED === 'true',
     rawBody: true,
     snapshot: process.env.NODE_ENV === NodeEnvironment.DEVELOPMENT,
